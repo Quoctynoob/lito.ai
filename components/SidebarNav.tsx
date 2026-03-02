@@ -33,6 +33,7 @@ export default function SidebarNav() {
         <div className="flex items-center justify-center">
           <Link href="/"><img src="/favicon.ico" alt="lito.ai" className="w-12 h-12 border" /></Link>
         </div>
+        <div className='text-white text-center'>lito.ai</div>
       </div>
 
       {/* Navigation */}
