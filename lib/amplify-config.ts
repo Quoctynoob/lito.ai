@@ -1,8 +1,8 @@
 export const amplifyConfig = {
   Auth: {
     Cognito: {
-      userPoolId: 'us-east-2_q4343eMy6',
-      userPoolClientId: '14kmscqedrr2og8goqoba0sdo2',
+      userPoolId: process.env.NEXT_PUBLIC_USER_POOL_ID,
+      userPoolClientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID,
       signUpVerificationMethod: 'code' as const,
       loginWith: {
         email: true,
