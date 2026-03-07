@@ -35,7 +35,7 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    const stored = localStorage.getItem('ventureScope_sessions');
+    const stored = localStorage.getItem('litoAi_sessions');
     if (stored) setSessions(JSON.parse(stored));
 
     // Get logged in user

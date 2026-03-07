@@ -159,7 +159,7 @@ function ResultsContent() {
 
   useEffect(() => {
     const sessions: { id: string; createdAt: string; intake: IntakeData; result: EvalResult }[] =
-      JSON.parse(localStorage.getItem('ventureScope_sessions') ?? '[]');
+      JSON.parse(localStorage.getItem('litoAi_sessions') ?? '[]');
     const session = id ? sessions.find(s => s.id === id) : sessions[0];
     if (session) {
       setResult(session.result);
@@ -175,7 +175,7 @@ function ResultsContent() {
     try {
       // 1. Get the session for the Startup Name
       const sessions: { id: string; intake: Record<string, unknown> }[] =
-        JSON.parse(localStorage.getItem('ventureScope_sessions') ?? '[]');
+        JSON.parse(localStorage.getItem('litoAi_sessions') ?? '[]');
       const session = id ? sessions.find(s => s.id === id) : sessions[0];
       const fullIntake = session?.intake ?? intake;
 

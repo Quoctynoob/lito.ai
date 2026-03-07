@@ -158,7 +158,7 @@ export default function ReviewPage() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const stored = localStorage.getItem('ventureScope_intake');
+    const stored = localStorage.getItem('litoAi_intake');
     if (stored) setData(JSON.parse(stored));
   }, []);
 
@@ -185,7 +185,7 @@ export default function ReviewPage() {
     if (!data) return;
     const updated = { ...data, ...draft } as FormData;
     setData(updated);
-    localStorage.setItem('ventureScope_intake', JSON.stringify(updated));
+    localStorage.setItem('litoAi_intake', JSON.stringify(updated));
     setEditingSection(null);
     setDraft({});
   }
@@ -214,7 +214,7 @@ export default function ReviewPage() {
   }
 
   function handleSaveAndExit() {
-    if (data) localStorage.setItem('ventureScope_intake', JSON.stringify(data));
+    if (data) localStorage.setItem('litoAi_intake', JSON.stringify(data));
     router.push('/');
   }
 
@@ -239,8 +239,8 @@ export default function ReviewPage() {
       const id      = Date.now().toString();
       const session = { id, createdAt: new Date().toISOString(), intake: data, result, confidence, riskLevel };
 
-      const existing: unknown[] = JSON.parse(localStorage.getItem('ventureScope_sessions') ?? '[]');
-      localStorage.setItem('ventureScope_sessions', JSON.stringify([session, ...existing]));
+      const existing: unknown[] = JSON.parse(localStorage.getItem('litoAi_sessions') ?? '[]');
+      localStorage.setItem('litoAi_sessions', JSON.stringify([session, ...existing]));
 
       setProgress(100);
       await new Promise(r => setTimeout(r, 700));

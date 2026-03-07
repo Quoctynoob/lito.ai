@@ -138,12 +138,12 @@ export default function ProjectIntake() {
   const fundingStage = form.watch('fundingStage');
 
   function onSubmit(values: FormValues) {
-    localStorage.setItem('ventureScope_intake', JSON.stringify(values));
+    localStorage.setItem('litoAi_intake', JSON.stringify(values));
     router.push('/project-intake/review');
   }
 
   function saveAndExit() {
-    localStorage.setItem('ventureScope_intake', JSON.stringify(form.getValues()));
+    localStorage.setItem('litoAi_intake', JSON.stringify(form.getValues()));
     router.push('/');
   }
 

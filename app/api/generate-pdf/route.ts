@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
         documentId,
         config: {
           userPassword:  startupName,
-          ownerPassword: "VentureScope",
+          ownerPassword: "lito.ai",
           permissions:   ['PRINT'],
         },
       }),
