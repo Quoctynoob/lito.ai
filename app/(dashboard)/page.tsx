@@ -33,6 +33,7 @@ import {
   MoreHorizontal,
   ChevronLeft,
   ChevronRight,
+  FolderCode,
 } from 'lucide-react';
 import { getUser, logoutUser } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
@@ -62,7 +63,7 @@ const RISK_COLORS: Record<string, string> = {
 type SortKey = 'industry' | 'confidence' | 'createdAt';
 type SortDir = 'asc' | 'desc';
 
-const PAGE_SIZES = [10, 20, 30, 50];
+const PAGE_SIZES = [5, 10, 20, 30];
 const COLS = 11;
 
 export default function HomePage() {
@@ -227,8 +228,12 @@ export default function HomePage() {
           <TableBody>
             {sessions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={COLS} className="text-center text-slate-400 py-10">
-                  No research yet. Click &quot;New Project&quot; to get started.
+                <TableCell colSpan={COLS} className="text-center py-10">
+                  <div className="flex flex-col items-center gap-2">
+                    <span className='bg-slate-100 p-3 rounded-md inline-flex'><FolderCode className="w-5 h-5 text-slate-800" /></span>
+                    <h1 className="text-base font-semibold text-slate-800">No Projects Yet</h1>
+                    <div className='text-gray-500 text-sm'>Import your first pitch deck to get started</div>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
@@ -282,7 +287,7 @@ export default function HomePage() {
         <div className="flex items-center gap-2">
           <span>Rows per page</span>
           <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
-            <SelectTrigger className="h-8 w-16">
+            <SelectTrigger className="h-8 w-18">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
