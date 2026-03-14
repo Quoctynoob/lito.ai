@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { ddb, s3, DYNAMO_TABLE, S3_OUTPUT_BUCKET } from '@/lib/aws-clients';
+import { MemoPagination } from '@/components/results/memo-pagination';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -18,7 +19,7 @@ async function ResultsContent({ jobId }: { jobId: string }) {
   }
 
   // Fetch memo JSON from S3 if available
-  let memo: unknown = null;
+  let memo: any = null;
   if (job.memoS3Key) {
     try {
       const s3Res = await s3.send(
@@ -31,23 +32,29 @@ async function ResultsContent({ jobId }: { jobId: string }) {
     }
   }
 
-  return (
-    <div className="p-8 space-y-8">
-      <div>
-        <h2 className="text-sm font-semibold text-slate-500 mb-2">DynamoDB — lito-jobs</h2>
-        <pre className="bg-slate-950 text-green-400 text-xs p-6 rounded-xl overflow-auto">
-          {JSON.stringify(job, null, 2)}
-        </pre>
-      </div>
+  // If no memo available, show raw data
+  if (!memo || memo.error) {
+    return (
+      <div className="p-8 space-y-8">
+        <div>
+          <h2 className="text-sm font-semibold text-slate-500 mb-2">DynamoDB — lito-jobs</h2>
+          <pre className="bg-slate-950 text-green-400 text-xs p-6 rounded-xl overflow-auto">
+            {JSON.stringify(job, null, 2)}
+          </pre>
+        </div>
 
-      <div>
-        <h2 className="text-sm font-semibold text-slate-500 mb-2">S3 — memo.json</h2>
-        <pre className="bg-slate-950 text-green-400 text-xs p-6 rounded-xl overflow-auto">
-          {memo ? JSON.stringify(memo, null, 2) : 'No memo available yet'}
-        </pre>
+        <div>
+          <h2 className="text-sm font-semibold text-slate-500 mb-2">S3 — memo.json</h2>
+          <pre className="bg-slate-950 text-green-400 text-xs p-6 rounded-xl overflow-auto">
+            {memo ? JSON.stringify(memo, null, 2) : 'No memo available yet'}
+          </pre>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // Display formatted memo with pagination
+  return <MemoPagination memo={memo} jobId={jobId} companyName={job.companyName || memo.company_name || 'Unknown'} />;
 }
 
 export default async function ResultsPage({ searchParams }: PageProps) {
