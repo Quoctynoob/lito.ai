@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 
@@ -13,7 +14,7 @@ const STEPS = [
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-export default function ProcessingPage() {
+function ProcessingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const jobId = searchParams.get("jobId");
@@ -113,5 +114,13 @@ export default function ProcessingPage() {
         </p>
       )}
     </div>
+  );
+}
+
+export default function ProcessingPage() {
+  return (
+    <Suspense>
+      <ProcessingContent />
+    </Suspense>
   );
 }
