@@ -1,18 +1,20 @@
+import { CircleCheckBig, CircleX } from 'lucide-react';
+
 interface CategoryDetail {
-  score: number;
-  max: number;
-  [key: string]: unknown;
+  score?: number;
+  max?: number;
+  [key: string]: any;
 }
 
 interface MemoData {
-  categories: {
-    team_equity: CategoryDetail & {
-      founder_market_fit?: string[];
+  categories?: {
+    team_equity?: CategoryDetail & {
+      founder_market_fit?: string[] | any[];
       concerns?: string[];
       red_flags?: string[];
       scoring_rationale?: Array<{ item: string; points: number }>;
     };
-    traction_validation: CategoryDetail & {
+    traction_validation?: CategoryDetail & {
       critical_alert?: string;
       claimed_in_deck?: string[];
       verified_findings?: string[];
@@ -24,7 +26,7 @@ interface MemoData {
       red_flags?: string[];
       scoring_rationale?: Array<{ item: string; points: number }>;
     };
-    market_vertical: CategoryDetail & {
+    market_vertical?: CategoryDetail & {
       business_model_snapshot?: {
         problem?: string;
         solution?: string;
@@ -54,7 +56,7 @@ interface MemoData {
       red_flags?: string[];
       scoring_rationale?: Array<{ item: string; points: number }>;
     };
-    capital_efficiency: CategoryDetail & {
+    capital_efficiency?: CategoryDetail & {
       current_stage_notes?: string[];
       funding_plan?: {
         use_of_funds?: string;
@@ -77,7 +79,7 @@ interface MemoData {
       concern_note?: string;
       scoring_rationale?: Array<{ item: string; points: number }>;
     };
-    cap_table_terms: CategoryDetail & {
+    cap_table_terms?: CategoryDetail & {
       funding_terms?: {
         raise_amount?: string;
         valuation_cap?: string;
@@ -114,14 +116,18 @@ interface MemoData {
 
 interface MemoPage2Props {
   memo: MemoData & {
-    founders?: Array<string | { name: string; role?: string; background?: string }>
+    founders?: string | Array<string | { name: string; role?: string; background?: string }>
   };
 }
 
-import { CircleCheckBig, CircleX } from 'lucide-react';
-
 export function MemoPage2({ memo }: MemoPage2Props) {
-  const { team_equity, traction_validation, market_vertical, capital_efficiency, cap_table_terms } = memo.categories;
+  // Graceful fallback if categories is missing
+  const categories = memo.categories || {};
+  const team_equity = categories.team_equity || {};
+  const traction_validation = categories.traction_validation || {};
+  const market_vertical = categories.market_vertical || {};
+  const capital_efficiency = categories.capital_efficiency || {};
+  const cap_table_terms = categories.cap_table_terms || {};
 
   return (
     <div className="space-y-6">
@@ -134,12 +140,10 @@ export function MemoPage2({ memo }: MemoPage2Props) {
           <h3 className="text-sm font-semibold text-black mb-2">Founder-Market Fit</h3>
           <ul className="space-y-2">
             {(() => {
-              // Use founder_market_fit if available, otherwise fall back to founders from memo root
               const foundersList = (team_equity.founder_market_fit && team_equity.founder_market_fit.length > 0)
                 ? team_equity.founder_market_fit
                 : null;
-
-              const rootFounders = (memo as any).founders as Array<any> | undefined;
+              const rootFounders = memo.founders;
 
               if (foundersList) {
                 return foundersList.map((item: any, i: number) => (
@@ -154,7 +158,7 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                 ));
               }
 
-              if (rootFounders && rootFounders.length > 0) {
+              if (Array.isArray(rootFounders) && rootFounders.length > 0) {
                 return rootFounders.map((f: any, i: number) => (
                   <li key={i} className="flex items-start gap-3">
                     <CircleCheckBig className="w-5 h-5 text-black shrink-0 mt-0.5" />
@@ -167,9 +171,18 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                 ));
               }
 
+              if (typeof rootFounders === 'string' && rootFounders.trim() !== '') {
+                return (
+                  <li className="flex items-start gap-3">
+                    <CircleCheckBig className="w-5 h-5 text-black shrink-0 mt-0.5" />
+                    <p className="text-sm text-black leading-relaxed">{rootFounders}</p>
+                  </li>
+                );
+              }
+
               return (
                 <li className="flex items-start gap-3">
-                  <CircleCheckBig className="w-5 h-5 text-black shrink-0 mt-0.5" />
+                  <span className="text-slate-400">•</span>
                   <p className="text-sm text-slate-400 leading-relaxed">No founder data available</p>
                 </li>
               );
@@ -190,8 +203,8 @@ export function MemoPage2({ memo }: MemoPage2Props) {
               ))
             ) : (
               <li className="flex items-start gap-3">
-                <span className="text-sm text-black">•</span>
-                <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
+                <span className="text-slate-400">•</span>
+                <p className="text-sm text-slate-400 leading-relaxed">No concerns flagged</p>
               </li>
             )}
           </ul>
@@ -204,14 +217,14 @@ export function MemoPage2({ memo }: MemoPage2Props) {
             {team_equity.red_flags && team_equity.red_flags.length > 0 ? (
               team_equity.red_flags.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="text-sm text-black">•</span>
+                  <span className="text-sm text-red-600 font-bold">•</span>
                   <p className="text-sm text-black leading-relaxed">{item}</p>
                 </li>
               ))
             ) : (
               <li className="flex items-start gap-3">
-                <span className="text-sm text-black">•</span>
-                <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
+                <span className="text-slate-400">•</span>
+                <p className="text-sm text-slate-400 leading-relaxed">No red flags flagged</p>
               </li>
             )}
           </ul>
@@ -227,13 +240,13 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                   <span className="text-sm text-black">•</span>
                   <div className="flex-1 flex items-center justify-between">
                     <p className="text-sm text-black leading-relaxed">{item.item}</p>
-                    <p className="text-sm text-black ml-4">{item.points >= 0 ? '+' : ''}{item.points}</p>
+                    <p className="text-sm text-black ml-4 font-semibold">{item.points >= 0 ? '+' : ''}{item.points}</p>
                   </div>
                 </li>
               ))
             ) : (
               <li className="flex items-start gap-3">
-                <span className="text-sm text-black">•</span>
+                <span className="text-slate-400">•</span>
                 <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
               </li>
             )}
@@ -258,7 +271,7 @@ export function MemoPage2({ memo }: MemoPage2Props) {
               ))
             ) : (
               <li className="flex items-start gap-3">
-                <span className="text-sm text-black">•</span>
+                <span className="text-slate-400">•</span>
                 <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
               </li>
             )}
@@ -272,21 +285,22 @@ export function MemoPage2({ memo }: MemoPage2Props) {
             {traction_validation.verified_findings && traction_validation.verified_findings.length > 0 ? (
               traction_validation.verified_findings.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <CircleX className="w-5 h-5 text-black shrink-0 mt-0.5" />
+                  <CircleCheckBig className="w-5 h-5 text-black shrink-0 mt-0.5" />
                   <p className="text-sm text-black leading-relaxed">{item}</p>
                 </li>
               ))
             ) : (
               <li className="flex items-start gap-3">
-                <CircleX className="w-5 h-5 text-black shrink-0 mt-0.5" />
-                <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
+                <CircleX className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                <p className="text-sm text-slate-400 leading-relaxed">No verified data available</p>
               </li>
             )}
           </ul>
         </div>
 
         {/* Benchmark Comparison */}
-        {traction_validation.benchmark_comparison && (
+        {traction_validation.benchmark_comparison && 
+          (traction_validation.benchmark_comparison.baseline || traction_validation.benchmark_comparison.strong || traction_validation.benchmark_comparison.this_startup) && (
           <div>
             <h3 className="text-sm font-semibold text-black mb-2">Benchmark Comparison</h3>
             <div className="space-y-2 text-sm">
@@ -312,26 +326,6 @@ export function MemoPage2({ memo }: MemoPage2Props) {
           </div>
         )}
 
-        {/* Red Flags */}
-        <div>
-          <h3 className="text-sm font-semibold text-black mb-2">Red Flags</h3>
-          <ul className="space-y-2">
-            {traction_validation.red_flags && traction_validation.red_flags.length > 0 ? (
-              traction_validation.red_flags.map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="text-sm text-black">•</span>
-                  <p className="text-sm text-black leading-relaxed">{item}</p>
-                </li>
-              ))
-            ) : (
-              <li className="flex items-start gap-3">
-                <span className="text-sm text-black">•</span>
-                <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
-              </li>
-            )}
-          </ul>
-        </div>
-
         {/* Scoring Rationale */}
         <div>
           <h3 className="text-sm font-semibold text-black mb-2">Scoring Rationale</h3>
@@ -342,13 +336,13 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                   <span className="text-sm text-black">•</span>
                   <div className="flex-1 flex items-center justify-between">
                     <p className="text-sm text-black leading-relaxed">{item.item}</p>
-                    <p className="text-sm text-black ml-4">{item.points >= 0 ? '+' : ''}{item.points}</p>
+                    <p className="text-sm text-black ml-4 font-semibold">{item.points >= 0 ? '+' : ''}{item.points}</p>
                   </div>
                 </li>
               ))
             ) : (
               <li className="flex items-start gap-3">
-                <span className="text-sm text-black">•</span>
+                <span className="text-slate-400">•</span>
                 <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
               </li>
             )}
@@ -361,7 +355,8 @@ export function MemoPage2({ memo }: MemoPage2Props) {
         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 6: MARKET & VERTICAL</h2>
 
         {/* Business Model Snapshot */}
-        {market_vertical.business_model_snapshot && (
+        {market_vertical.business_model_snapshot && 
+          (market_vertical.business_model_snapshot.problem || market_vertical.business_model_snapshot.solution || market_vertical.business_model_snapshot.differentiation) && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-black">Business Model Snapshot</h3>
 
@@ -386,20 +381,10 @@ export function MemoPage2({ memo }: MemoPage2Props) {
               </div>
             )}
 
-            {market_vertical.business_model_snapshot.target_market && (
-              <div>
-                <p className="text-sm font-semibold text-black">Target Market:</p>
-                <p className="text-sm text-black mt-1">{market_vertical.business_model_snapshot.target_market}</p>
-              </div>
-            )}
-
             {market_vertical.business_model_snapshot.differentiation && (
               <div>
                 <p className="text-sm font-semibold text-black">Differentiation:</p>
                 <p className="text-sm text-black mt-1">{market_vertical.business_model_snapshot.differentiation}</p>
-                {market_vertical.business_model_snapshot.differentiation_assessment && (
-                  <p className="text-sm text-black mt-1">Verified: {market_vertical.business_model_snapshot.differentiation_assessment}</p>
-                )}
               </div>
             )}
           </div>
@@ -413,7 +398,7 @@ export function MemoPage2({ memo }: MemoPage2Props) {
           <h3 className="text-sm font-semibold text-black">Market & Risk Assessment</h3>
 
           {/* TAM */}
-          {market_vertical.tam && (
+          {market_vertical.tam && (market_vertical.tam.claimed || market_vertical.tam.verified) && (
             <div>
               <h4 className="text-sm font-semibold text-black mb-2">Total Addressable Market</h4>
               <div className="space-y-2 text-sm">
@@ -435,106 +420,6 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                     <span className="text-black">{market_vertical.tam.assessment}</span>
                   </div>
                 )}
-                {market_vertical.tam.sources && market_vertical.tam.sources.length > 0 && (
-                  <div className="pt-2">
-                    <p className="text-sm font-semibold text-black mb-1">Sources:</p>
-                    {market_vertical.tam.sources.map((src, i) => (
-                      <a
-                        key={i}
-                        href={src}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline block"
-                      >
-                        {src}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Risk Assessments */}
-          {market_vertical.risk_assessment && (
-            <div className="space-y-3">
-              {market_vertical.risk_assessment.business_model_risk && (
-                <div>
-                  <h4 className="text-sm font-semibold text-black mb-2">
-                    Business Model Risk: {market_vertical.risk_assessment.business_model_risk.level}
-                  </h4>
-                  {market_vertical.risk_assessment.business_model_risk.detail && (
-                    <ul className="space-y-1">
-                      <li className="flex items-start gap-3">
-                        <span className="text-sm text-black">•</span>
-                        <p className="text-sm text-black">{market_vertical.risk_assessment.business_model_risk.detail}</p>
-                      </li>
-                    </ul>
-                  )}
-                </div>
-              )}
-
-              {market_vertical.risk_assessment.market_saturation && (
-                <div>
-                  <h4 className="text-sm font-semibold text-black mb-2">
-                    Market Saturation: {market_vertical.risk_assessment.market_saturation.level}
-                  </h4>
-                  {market_vertical.risk_assessment.market_saturation.bullets && (
-                    <ul className="space-y-1">
-                      {market_vertical.risk_assessment.market_saturation.bullets.map((b, i) => (
-                        <li key={i} className="flex items-start gap-3">
-                          <span className="text-sm text-black">•</span>
-                          <p className="text-sm text-black">{b}</p>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-
-              {market_vertical.risk_assessment.competitive_moat && (
-                <div>
-                  <h4 className="text-sm font-semibold text-black mb-2">
-                    Competitive Moat: {market_vertical.risk_assessment.competitive_moat.level}
-                  </h4>
-                  {market_vertical.risk_assessment.competitive_moat.detail && (
-                    <ul className="space-y-1">
-                      <li className="flex items-start gap-3">
-                        <span className="text-sm text-black">•</span>
-                        <p className="text-sm text-black">{market_vertical.risk_assessment.competitive_moat.detail}</p>
-                      </li>
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Competitive Landscape */}
-          {market_vertical.competitive_landscape && market_vertical.competitive_landscape.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-black mb-2">Competitive Landscape</h4>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b border-slate-200">
-                    <tr>
-                      <th className="px-3 py-2 text-left font-semibold text-black">Competitor</th>
-                      <th className="px-3 py-2 text-left font-semibold text-black">Scope</th>
-                      <th className="px-3 py-2 text-left font-semibold text-black">Model</th>
-                      <th className="px-3 py-2 text-left font-semibold text-black">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {market_vertical.competitive_landscape.map((comp, i) => (
-                      <tr key={i}>
-                        <td className="px-3 py-2 text-black">{comp.name}</td>
-                        <td className="px-3 py-2 text-black">{comp.scope}</td>
-                        <td className="px-3 py-2 text-black">{comp.model}</td>
-                        <td className="px-3 py-2 text-black">{comp.status}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
             </div>
           )}
@@ -550,13 +435,13 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                   <span className="text-sm text-black">•</span>
                   <div className="flex-1 flex items-center justify-between">
                     <p className="text-sm text-black leading-relaxed">{item.item}</p>
-                    <p className="text-sm text-black ml-4">{item.points >= 0 ? '+' : ''}{item.points}</p>
+                    <p className="text-sm text-black ml-4 font-semibold">{item.points >= 0 ? '+' : ''}{item.points}</p>
                   </div>
                 </li>
               ))
             ) : (
               <li className="flex items-start gap-3">
-                <span className="text-sm text-black">•</span>
+                <span className="text-slate-400">•</span>
                 <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
               </li>
             )}
@@ -568,23 +453,9 @@ export function MemoPage2({ memo }: MemoPage2Props) {
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 7: CAPITAL EFFICIENCY</h2>
 
-        {/* Current Stage Notes */}
-        {capital_efficiency.current_stage_notes && capital_efficiency.current_stage_notes.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-black mb-2">Current Stage Notes</h3>
-            <ul className="space-y-2">
-              {capital_efficiency.current_stage_notes.map((note, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="text-sm text-black">•</span>
-                  <p className="text-sm text-black leading-relaxed">{note}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {/* Funding Plan */}
-        {capital_efficiency.funding_plan && (
+        {capital_efficiency.funding_plan && 
+          (capital_efficiency.funding_plan.use_of_funds || capital_efficiency.funding_plan.runway || capital_efficiency.funding_plan.burn_rate) && (
           <div>
             <h3 className="text-sm font-semibold text-black mb-2">Funding Plan</h3>
             <div className="space-y-2 text-sm">
@@ -611,7 +482,8 @@ export function MemoPage2({ memo }: MemoPage2Props) {
         )}
 
         {/* Unit Economics */}
-        {capital_efficiency.unit_economics && (
+        {capital_efficiency.unit_economics && 
+          (capital_efficiency.unit_economics.cac || capital_efficiency.unit_economics.ltv || capital_efficiency.unit_economics.gross_margin) && (
           <div>
             <h3 className="text-sm font-semibold text-black mb-2">Unit Economics</h3>
             <div className="space-y-2 text-sm">
@@ -633,20 +505,7 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                   <span className="text-black">{capital_efficiency.unit_economics.gross_margin}</span>
                 </div>
               )}
-              {capital_efficiency.unit_economics.payback_period && (
-                <div>
-                  <span className="font-semibold text-black">Payback Period: </span>
-                  <span className="text-black">{capital_efficiency.unit_economics.payback_period}</span>
-                </div>
-              )}
             </div>
-          </div>
-        )}
-
-        {/* Concern Note */}
-        {capital_efficiency.concern_note && (
-          <div className="border border-slate-400 rounded-lg p-4">
-            <p className="text-sm text-black">{capital_efficiency.concern_note}</p>
           </div>
         )}
 
@@ -660,13 +519,13 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                   <span className="text-sm text-black">•</span>
                   <div className="flex-1 flex items-center justify-between">
                     <p className="text-sm text-black leading-relaxed">{item.item}</p>
-                    <p className="text-sm text-black ml-4">{item.points >= 0 ? '+' : ''}{item.points}</p>
+                    <p className="text-sm text-black ml-4 font-semibold">{item.points >= 0 ? '+' : ''}{item.points}</p>
                   </div>
                 </li>
               ))
             ) : (
               <li className="flex items-start gap-3">
-                <span className="text-sm text-black">•</span>
+                <span className="text-slate-400">•</span>
                 <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
               </li>
             )}
@@ -679,7 +538,8 @@ export function MemoPage2({ memo }: MemoPage2Props) {
         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 8: CAP TABLE & TERMS</h2>
 
         {/* Funding Terms */}
-        {cap_table_terms.funding_terms && (
+        {cap_table_terms.funding_terms && 
+          (cap_table_terms.funding_terms.raise_amount || cap_table_terms.funding_terms.valuation_cap || cap_table_terms.funding_terms.discount) && (
           <div>
             <h3 className="text-sm font-semibold text-black mb-2">Funding Terms</h3>
             <div className="space-y-2 text-sm">
@@ -701,12 +561,6 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                   <span className="text-black">{cap_table_terms.funding_terms.instrument}</span>
                 </div>
               )}
-              {cap_table_terms.funding_terms.discount && (
-                <div>
-                  <span className="font-semibold text-black">Discount: </span>
-                  <span className="text-black">{cap_table_terms.funding_terms.discount}</span>
-                </div>
-              )}
               {cap_table_terms.funding_terms.dilution && (
                 <div>
                   <span className="font-semibold text-black">Dilution: </span>
@@ -717,23 +571,9 @@ export function MemoPage2({ memo }: MemoPage2Props) {
           </div>
         )}
 
-        {/* Assessments */}
-        {cap_table_terms.assessments && cap_table_terms.assessments.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-black mb-2">Assessments</h3>
-            <ul className="space-y-2">
-              {cap_table_terms.assessments.map((assessment, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="text-sm text-black">•</span>
-                  <p className="text-sm text-black leading-relaxed">{assessment.text}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {/* Cap Table Structure */}
-        {cap_table_terms.cap_table_structure && (
+        {cap_table_terms.cap_table_structure && 
+          (cap_table_terms.cap_table_structure.previous_raises || cap_table_terms.cap_table_structure.safes_on_table || cap_table_terms.cap_table_structure.founder_equity) && (
           <div>
             <h3 className="text-sm font-semibold text-black mb-2">Cap Table Structure</h3>
             <div className="space-y-2 text-sm">
@@ -749,12 +589,6 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                   <span className="text-black">{cap_table_terms.cap_table_structure.safes_on_table}</span>
                 </div>
               )}
-              {cap_table_terms.cap_table_structure.convertible_notes && (
-                <div>
-                  <span className="font-semibold text-black">Convertible Notes: </span>
-                  <span className="text-black">{cap_table_terms.cap_table_structure.convertible_notes}</span>
-                </div>
-              )}
               {cap_table_terms.cap_table_structure.founder_equity && (
                 <div>
                   <span className="font-semibold text-black">Founder Equity: </span>
@@ -762,14 +596,6 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                 </div>
               )}
             </div>
-          </div>
-        )}
-
-        {/* SAFE Killswitch */}
-        {cap_table_terms.safe_killswitch && cap_table_terms.safe_killswitch.triggered && (
-          <div className="border border-slate-400 rounded-lg p-4">
-            <p className="text-sm font-semibold text-black mb-1">SAFE Killswitch Triggered</p>
-            <p className="text-sm text-black">{cap_table_terms.safe_killswitch.detail}</p>
           </div>
         )}
 
@@ -783,13 +609,13 @@ export function MemoPage2({ memo }: MemoPage2Props) {
                   <span className="text-sm text-black">•</span>
                   <div className="flex-1 flex items-center justify-between">
                     <p className="text-sm text-black leading-relaxed">{item.item}</p>
-                    <p className="text-sm text-black ml-4">{item.points >= 0 ? '+' : ''}{item.points}</p>
+                    <p className="text-sm text-black ml-4 font-semibold">{item.points >= 0 ? '+' : ''}{item.points}</p>
                   </div>
                 </li>
               ))
             ) : (
               <li className="flex items-start gap-3">
-                <span className="text-sm text-black">•</span>
+                <span className="text-slate-400">•</span>
                 <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
               </li>
             )}

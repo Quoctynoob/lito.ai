@@ -5,7 +5,7 @@ interface MemoData {
   stage: string;
   industry: string;
   raising: string;
-  founders: Array<string | { name: string; role?: string; background?: string; red_flags?: string[] }>;
+  founders: string | Array<string | { name: string; role?: string; background?: string; red_flags?: string[] }>;
   one_liner: string;
   verdict: {
     score: number;
@@ -24,28 +24,29 @@ interface MemoData {
     }>;
   };
   score_breakdown: {
-    team_equity: { score: number; max: number };
-    traction_validation: { score: number; max: number };
-    market_vertical: { score: number; max: number };
-    capital_efficiency: { score: number; max: number };
-    cap_table_terms: { score: number; max: number };
-    subtotal: number;
+    team_equity_weighted: number;
+    traction_validation_weighted: number;
+    market_vertical_weighted: number;
+    capital_efficiency_weighted: number;
+    cap_table_terms_weighted: number;
+    weighted_subtotal: number;
     penalties: number;
-    final: number;
+    final_tfi_score: number;
   };
   verified_strengths: {
     items: string[];
     however_note?: string;
   };
+  penalties?: {
+    applied?: string[];
+    total?: number;
+  };
   categories?: {
-    team_equity?: {
-      score: number;
-      max: number;
-      founder_market_fit?: string[];
-      concerns?: string[];
-      red_flags?: string[];
-      scoring_rationale?: Array<{ item: string; points: number }>;
-    };
+    team_equity?: { score: number; max: number };
+    traction_validation?: { score: number; max: number };
+    market_vertical?: { score: number; max: number };
+    capital_efficiency?: { score: number; max: number };
+    cap_table_terms?: { score: number; max: number };
   };
 }
 
@@ -54,7 +55,7 @@ interface MemoPage1Props {
 }
 
 export function MemoPage1({ memo }: MemoPage1Props) {
-  const scorePercentage = memo.verdict.score;
+  const scorePercentage = memo.verdict?.score || 0;
 
   return (
     <div className="space-y-6">
@@ -91,10 +92,10 @@ export function MemoPage1({ memo }: MemoPage1Props) {
             <div className="flex gap-2">
               <span className="text-sm text-slate-500">Founders:</span>
               <span className="text-sm text-black">
-                {memo.founders && memo.founders.length > 0
-                  ? memo.founders.map((f: any) =>
-                      typeof f === 'object' ? f.name : f
-                    ).filter(Boolean).join(', ')
+                {Array.isArray(memo.founders) && memo.founders.length > 0
+                  ? memo.founders.map((f: any) => typeof f === 'object' ? f.name : f).filter(Boolean).join(', ')
+                  : typeof memo.founders === 'string' && memo.founders.trim() !== ''
+                  ? memo.founders
                   : 'Not disclosed'}
               </span>
             </div>
@@ -115,7 +116,7 @@ export function MemoPage1({ memo }: MemoPage1Props) {
 
           {/* Score Display - Left Aligned */}
           <div className="mb-2">
-            <div className="text-5xl font-bold text-black">{memo.verdict.score}</div>
+            <div className="text-5xl font-bold text-black">{memo.verdict?.score || 0}</div>
             <div className="text-sm text-slate-500">out of 100</div>
           </div>
 
@@ -131,44 +132,46 @@ export function MemoPage1({ memo }: MemoPage1Props) {
           <div className="flex justify-between items-center pt-2">
             <div className="flex gap-2">
               <span className="text-sm text-slate-500">Tier:</span>
-              <span className="text-sm text-black">{memo.verdict.tier}</span>
+              <span className="text-sm text-black">{memo.verdict?.tier}</span>
             </div>
 
             <div className="flex gap-2">
               <span className="text-sm text-slate-500">Recommendation:</span>
-              <span className="text-sm text-black">{memo.verdict.recommendation}</span>
+              <span className="text-sm text-black">{memo.verdict?.recommendation}</span>
             </div>
 
             <div className="flex gap-2">
               <span className="text-sm text-slate-500">AI Confidence:</span>
-              <span className="text-sm text-black">{memo.verdict.ai_confidence}%</span>
+              <span className="text-sm text-black">{memo.verdict?.ai_confidence || 0}%</span>
             </div>
           </div>
         </div>
 
         {/* Gatekeeper Alert */}
-        {memo.verdict.gatekeeper_alert?.triggered && (
+        {memo.verdict?.gatekeeper_alert?.triggered && (
           <div className="border border-black rounded-lg p-6">
             <p className="text-sm font-semibold text-black mb-2">Gatekeeper Alert</p>
             <p className="text-sm text-black leading-relaxed">{memo.verdict.gatekeeper_alert.message}</p>
           </div>
         )}
 
-        {/* Top 3 Deal Killers */}
-        <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">TOP 3 DEAL KILLERS</h2>
-          <ul className="space-y-2">
-            {memo.verdict.top_deal_killers.map((killer, i) => (
-              <li key={i} className="flex gap-3">
-                <span className="text-sm text-black">•</span>
-                <div className="flex-1">
-                  <span className="text-sm text-black font-medium">{killer.title}:</span>{' '}
-                  <span className="text-sm text-black">{killer.evidence}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* Top Deal Killers */}
+        {memo.verdict?.top_deal_killers && memo.verdict.top_deal_killers.length > 0 && (
+          <div className="space-y-3">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">TOP DEAL KILLERS</h2>
+            <ul className="space-y-2">
+              {memo.verdict.top_deal_killers.map((killer, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="text-sm text-black">•</span>
+                  <div className="flex-1">
+                    <span className="text-sm text-black font-medium">{killer.title}:</span>{' '}
+                    <span className="text-sm text-black">{killer.evidence}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Section 2: Score Breakdown */}
         <div className="bg-white rounded-lg p-6 space-y-4">
@@ -176,29 +179,34 @@ export function MemoPage1({ memo }: MemoPage1Props) {
 
           <div className="space-y-3">
             {[
-              { name: 'Team Equity', score: memo.score_breakdown.team_equity.score, max: memo.score_breakdown.team_equity.max },
+              { 
+                name: 'Team Equity', 
+                score: memo.categories?.team_equity?.score ?? 0, 
+                max: memo.categories?.team_equity?.max ?? 30 
+              },
               {
                 name: 'Traction Validation',
-                score: memo.score_breakdown.traction_validation.score,
-                max: memo.score_breakdown.traction_validation.max,
+                score: memo.categories?.traction_validation?.score ?? 0,
+                max: memo.categories?.traction_validation?.max ?? 15,
               },
               {
                 name: 'Market Vertical',
-                score: memo.score_breakdown.market_vertical.score,
-                max: memo.score_breakdown.market_vertical.max,
+                score: memo.categories?.market_vertical?.score ?? 0,
+                max: memo.categories?.market_vertical?.max ?? 20,
               },
               {
                 name: 'Capital Efficiency',
-                score: memo.score_breakdown.capital_efficiency.score,
-                max: memo.score_breakdown.capital_efficiency.max,
+                score: memo.categories?.capital_efficiency?.score ?? 0,
+                max: memo.categories?.capital_efficiency?.max ?? 25,
               },
               {
                 name: 'Cap Table Terms',
-                score: memo.score_breakdown.cap_table_terms.score,
-                max: memo.score_breakdown.cap_table_terms.max,
+                score: memo.categories?.cap_table_terms?.score ?? 0,
+                max: memo.categories?.cap_table_terms?.max ?? 10,
               },
             ].map((cat) => {
-              const percentage = (cat.score / cat.max) * 100;
+              const safeMax = cat.max > 0 ? cat.max : 1;
+              const percentage = (cat.score / safeMax) * 100;
 
               return (
                 <div key={cat.name} className="flex items-center gap-4">
@@ -218,48 +226,50 @@ export function MemoPage1({ memo }: MemoPage1Props) {
 
             {/* Subtotal */}
             <div className="flex items-center justify-between">
-              <p className="text-sm text-black">Subtotal</p>
-              <p className="text-sm text-black">{memo.score_breakdown.subtotal}</p>
+              <p className="text-sm text-black">Weighted Subtotal</p>
+              <p className="text-sm text-black">{memo.score_breakdown?.weighted_subtotal ?? 0}</p>
             </div>
 
             {/* Penalties */}
             <div className="flex items-center justify-between">
               <p className="text-sm text-black">Penalties</p>
-              <p className="text-sm text-black">-{memo.score_breakdown.penalties}</p>
+              <p className="text-sm text-black">-{memo.penalties?.total ?? memo.score_breakdown?.penalties ?? 0}</p>
             </div>
 
             {/* Final Score */}
             <div className="flex items-center justify-between">
               <p className="text-sm font-bold text-black">Final Score</p>
-              <p className="text-lg font-bold text-black">{memo.score_breakdown.final}/100</p>
+              <p className="text-lg font-bold text-black">{memo.score_breakdown?.final_tfi_score ?? memo.verdict?.score ?? 0}/100</p>
             </div>
           </div>
         </div>
 
         {/* Section 3: Verified Strengths */}
-        <div className="bg-white rounded-lg p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 3: CONSOLIDATED SUMMARY</h2>
+        {memo.verified_strengths && memo.verified_strengths.items && memo.verified_strengths.items.length > 0 && (
+          <div className="bg-white rounded-lg p-6 space-y-4">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 3: CONSOLIDATED SUMMARY</h2>
 
-          <ul className="space-y-2">
-            {memo.verified_strengths.items.map((item, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <CircleCheckBig className="w-5 h-5 text-black shrink-0 mt-0.5" />
-                <p className="text-sm text-black leading-relaxed">{item}</p>
-              </li>
-            ))}
-          </ul>
+            <ul className="space-y-2">
+              {memo.verified_strengths.items.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <CircleCheckBig className="w-5 h-5 text-black shrink-0 mt-0.5" />
+                  <p className="text-sm text-black leading-relaxed">{item}</p>
+                </li>
+              ))}
+            </ul>
 
-        {/* Separator Line */}
-        <div className="border-t border-slate-300" />
+            {/* Separator Line */}
+            <div className="border-t border-slate-300" />
 
-          {memo.verified_strengths.however_note && (
-            <div className="border bg-memo-bg rounded-lg p-4">
-              <p className="text-sm text-black">
-                <span className="font-semibold">However:</span><br /> {memo.verified_strengths.however_note}
-              </p>
-            </div>
-          )}
-        </div>
+            {memo.verified_strengths.however_note && (
+              <div className="border bg-memo-bg rounded-lg p-4">
+                <p className="text-sm text-black">
+                  <span className="font-semibold">However:</span><br /> {memo.verified_strengths.however_note}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
