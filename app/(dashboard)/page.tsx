@@ -4,6 +4,7 @@ import { SessionsToolbar } from '@/components/sessions/sessions-toolbar';
 import { SessionsTable } from '@/components/sessions/sessions-table';
 import { PaginationControls } from '@/components/sessions/pagination-controls';
 import { PipelineBar } from '@/components/dashboard/pipeline-bar';
+import { AlertFeed } from '@/components/dashboard/alert-feed';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -91,9 +92,9 @@ export default async function HomePage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        {/* News Feed */}
-        <div className="-mt-16 flex w-64 items-start justify-center self-end overflow-y-auto rounded-lg bg-slate-200 pt-4" style={{ height: '464px' }}>
-          <span className="text-sm font-medium text-slate-500">News Feed</span>
+        {/* Alert Feed */}
+        <div className="-mt-16 w-64 self-end" style={{ height: '464px' }}>
+          <AlertFeed />
         </div>
 
       </div>
