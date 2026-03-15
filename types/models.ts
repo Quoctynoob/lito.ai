@@ -1,5 +1,3 @@
-import { type EvalResult } from './api';
-
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
 export type NewsArticle = {
@@ -31,7 +29,6 @@ export type Session = {
   };
   confidence: number;
   riskLevel:  string;
-  result:     EvalResult;
 };
 
 export type SortKey = 'industry' | 'confidence' | 'createdAt';

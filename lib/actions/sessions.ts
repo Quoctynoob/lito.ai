@@ -52,7 +52,6 @@ function toSession(item: Record<string, unknown>): Session {
     },
     confidence: score,
     riskLevel:  riskLevel,
-    result:     (item.result as Session['result']) || {} as Session['result'],
   };
 }
 
