@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ChartColumnBig, Database, Settings, CircleQuestionMark, LayoutDashboard, Users, LayoutList, LogOut } from 'lucide-react';
+import { Upload, Database, Settings, CircleQuestionMark, LayoutDashboard, Users, LayoutList, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,7 +39,7 @@ export default function SidebarNav() {
   }
 
   function navClass(path: string) {
-    return `flex flex-col items-center gap-0.5 px-2 py-2 text-xs rounded-lg mx-3 transition-colors ${
+    return `flex flex-col items-center gap-0.5 px-1.5 py-1.5 text-[10px] rounded-lg mx-2 transition-colors ${
       isActive(path)
         ? 'bg-gray-bar font-bold text-white'
         : 'text-white hover:bg-gray-bar hover:text-white'
@@ -51,29 +51,29 @@ export default function SidebarNav() {
   }
 
   return (
-    <aside className="w-24 bg-gray-bg border-r border-slate-200 flex flex-col shrink-0">
+    <aside className="w-20 bg-gray-bg border-r border-slate-200 flex flex-col shrink-0">
 
       {/* Brand */}
-      <div className="px-3 pt-4 pb-3">
+      <div className="px-2 pt-3 pb-2">
         <div className="flex items-center justify-center">
-          <Link href="/"><img src="/favicon.ico" alt="lito.ai" className="w-9 h-9 border" /></Link>
+          <Link href="/"><img src="/favicon.ico" alt="lito.ai" className="w-7 h-7 border" /></Link>
         </div>
-        <div className='text-white text-center text-xs'>lito.ai</div>
+        <div className='text-white text-center text-[10px]'>lito.ai</div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-col gap-0.5 py-2 flex-1">
-        <Link href="/" className={navClass('/')}><LayoutDashboard strokeWidth={iconStroke('/')} /> Dashboard</Link>
-        <Link href="/analytics" className={navClass('/analytics')}><ChartColumnBig strokeWidth={iconStroke('/analytics')} /> Analytics</Link>
-        <Link href="/portfolio" className={navClass('/portfolio')}><LayoutList strokeWidth={iconStroke('/portfolio')} /> Portfolio</Link>
-        <Link href="/library" className={navClass('/library')}><Database strokeWidth={iconStroke('/library')} /> Library</Link>
+      <nav className="flex flex-col gap-2 py-2 flex-1">
+        <Link href="/" className={navClass('/')}><LayoutDashboard size={16} strokeWidth={iconStroke('/')} /> Dashboard</Link>
+        <Link href="/upload" className={navClass('/upload')}><Upload size={16} strokeWidth={iconStroke('/upload')} /> Upload</Link>
+        <Link href="/portfolio" className={navClass('/portfolio')}><LayoutList size={16} strokeWidth={iconStroke('/portfolio')} /> Portfolio</Link>
+        <Link href="/library" className={navClass('/library')}><Database size={16} strokeWidth={iconStroke('/library')} /> Library</Link>
 
         <div className="flex-1" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex flex-col items-center gap-0.5 px-2 py-2 mx-3 rounded-lg text-white hover:bg-gray-bar transition-colors outline-none">
-              <div className="w-9 h-9 rounded-full bg-slate-300 flex items-center justify-center">
-                <span className="text-sm font-semibold text-slate-600">{initial}</span>
+            <button className="flex flex-col items-center gap-0.5 px-1.5 py-1.5 mx-2 rounded-lg text-white hover:bg-gray-bar transition-colors outline-none">
+              <div className="w-7 h-7 rounded-full bg-slate-300 flex items-center justify-center">
+                <span className="text-xs font-semibold text-slate-600">{initial}</span>
               </div>
             </button>
           </DropdownMenuTrigger>

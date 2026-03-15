@@ -10,8 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search } from 'lucide-react';
-import { UploadDialog } from '@/components/shared/upload-dialog';
+import { Search, Plus } from 'lucide-react';
+import Link from 'next/link';
 
 export function SessionsToolbar() {
   const router = useRouter();
@@ -56,7 +56,12 @@ export function SessionsToolbar() {
           </SelectContent>
         </Select>
       </div>
-      <UploadDialog />
+      <Link href="/upload">
+        <Button>
+          <Plus className="mr-1 h-4 w-4" />
+          Add New Company
+        </Button>
+      </Link>
     </div>
   );
 }

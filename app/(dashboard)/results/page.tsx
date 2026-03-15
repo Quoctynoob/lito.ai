@@ -3,19 +3,30 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { ddb, s3, DYNAMO_TABLE, S3_OUTPUT_BUCKET } from '@/lib/aws-clients';
 import { MemoPagination } from '@/components/results/memo-pagination';
+import { getCurrentUser } from 'aws-amplify/auth/server';
+import { runWithAmplifyServerContext } from '@/lib/amplify-server-utils';
+import { cookies } from 'next/headers';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-async function ResultsContent({ jobId }: { jobId: string }) {
-  // Fetch job from DynamoDB
+async function ResultsContent({ jobId, userId }: { jobId: string; userId: string }) {
   const { Item: job } = await ddb.send(
     new GetCommand({ TableName: DYNAMO_TABLE, Key: { jobId } })
   );
 
   if (!job) {
     return <pre className="p-8 text-red-500">Job not found: {jobId}</pre>;
+  }
+
+  // Ownership check
+  if (job.userId !== userId) {
+    return (
+      <div className="flex items-center justify-center h-64 text-red-400 text-sm">
+        Unauthorized.
+      </div>
+    );
   }
 
   // Fetch memo JSON from S3 if available
@@ -61,6 +72,18 @@ export default async function ResultsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const jobId = typeof params.jobId === 'string' ? params.jobId : undefined;
 
+  // Get userId from Cognito session
+  let userId = 'anonymous';
+  try {
+    const user = await runWithAmplifyServerContext({
+      nextServerContext: { cookies },
+      operation: (ctx) => getCurrentUser(ctx),
+    }) as { userId: string };
+    userId = user.userId;
+  } catch {
+    // unauthenticated — userId stays 'anonymous'
+  }
+
   if (!jobId) {
     return (
       <div className="flex items-center justify-center h-64 text-slate-400 text-sm">
@@ -71,7 +94,7 @@ export default async function ResultsPage({ searchParams }: PageProps) {
 
   return (
     <Suspense fallback={<div className="p-8 text-slate-400 text-sm">Loading…</div>}>
-      <ResultsContent jobId={jobId} />
+      <ResultsContent jobId={jobId} userId={userId} />
     </Suspense>
   );
 }
