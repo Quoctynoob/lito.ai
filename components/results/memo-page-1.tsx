@@ -5,7 +5,7 @@ interface MemoData {
   stage: string;
   industry: string;
   raising: string;
-  founders: string[];
+  founders: Array<string | { name: string; role?: string; background?: string; red_flags?: string[] }>;
   one_liner: string;
   verdict: {
     score: number;
@@ -91,7 +91,11 @@ export function MemoPage1({ memo }: MemoPage1Props) {
             <div className="flex gap-2">
               <span className="text-sm text-slate-500">Founders:</span>
               <span className="text-sm text-black">
-                {memo.founders && memo.founders.length > 0 ? memo.founders.join(', ') : 'Not disclosed'}
+                {memo.founders && memo.founders.length > 0
+                  ? memo.founders.map((f: any) =>
+                      typeof f === 'object' ? f.name : f
+                    ).filter(Boolean).join(', ')
+                  : 'Not disclosed'}
               </span>
             </div>
 

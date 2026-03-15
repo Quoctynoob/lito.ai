@@ -113,7 +113,9 @@ interface MemoData {
 }
 
 interface MemoPage2Props {
-  memo: MemoData;
+  memo: MemoData & {
+    founders?: Array<string | { name: string; role?: string; background?: string }>
+  };
 }
 
 import { CircleCheckBig, CircleX } from 'lucide-react';
@@ -131,19 +133,47 @@ export function MemoPage2({ memo }: MemoPage2Props) {
         <div>
           <h3 className="text-sm font-semibold text-black mb-2">Founder-Market Fit</h3>
           <ul className="space-y-2">
-            {team_equity.founder_market_fit && team_equity.founder_market_fit.length > 0 ? (
-              team_equity.founder_market_fit.map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
+            {(() => {
+              // Use founder_market_fit if available, otherwise fall back to founders from memo root
+              const foundersList = (team_equity.founder_market_fit && team_equity.founder_market_fit.length > 0)
+                ? team_equity.founder_market_fit
+                : null;
+
+              const rootFounders = (memo as any).founders as Array<any> | undefined;
+
+              if (foundersList) {
+                return foundersList.map((item: any, i: number) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <CircleCheckBig className="w-5 h-5 text-black shrink-0 mt-0.5" />
+                    <p className="text-sm text-black leading-relaxed">
+                      {typeof item === 'object'
+                        ? `${item.name}${item.role ? ': ' + item.role : ''}${item.background ? ' (' + item.background + ')' : ''}`
+                        : item}
+                    </p>
+                  </li>
+                ));
+              }
+
+              if (rootFounders && rootFounders.length > 0) {
+                return rootFounders.map((f: any, i: number) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <CircleCheckBig className="w-5 h-5 text-black shrink-0 mt-0.5" />
+                    <p className="text-sm text-black leading-relaxed">
+                      {typeof f === 'object'
+                        ? `${f.name}${f.role ? ': ' + f.role : ''}${f.background ? ' (' + f.background + ')' : ''}`
+                        : f}
+                    </p>
+                  </li>
+                ));
+              }
+
+              return (
+                <li className="flex items-start gap-3">
                   <CircleCheckBig className="w-5 h-5 text-black shrink-0 mt-0.5" />
-                  <p className="text-sm text-black leading-relaxed">{item}</p>
+                  <p className="text-sm text-slate-400 leading-relaxed">No founder data available</p>
                 </li>
-              ))
-            ) : (
-              <li className="flex items-start gap-3">
-                <CircleCheckBig className="w-5 h-5 text-black shrink-0 mt-0.5" />
-                <p className="text-sm text-slate-400 leading-relaxed">No data available</p>
-              </li>
-            )}
+              );
+            })()}
           </ul>
         </div>
 
