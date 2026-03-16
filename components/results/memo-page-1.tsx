@@ -1,4 +1,6 @@
-import { CircleCheckBig } from 'lucide-react';
+'use client';
+
+import { CircleCheckBig, MessageSquare } from 'lucide-react';
 
 interface MemoData {
   company_name: string;
@@ -50,11 +52,27 @@ interface MemoData {
   };
 }
 
+type OnDiscuss = (sectionName: string, sectionKey: string, sectionData: any) => void;
+
 interface MemoPage1Props {
   memo: MemoData;
+  onDiscuss?: OnDiscuss;
 }
 
-export function MemoPage1({ memo }: MemoPage1Props) {
+function DiscussBtn({ label, sectionKey, data, onDiscuss }: { label: string; sectionKey: string; data: any; onDiscuss?: OnDiscuss }) {
+  if (!onDiscuss) return null;
+  return (
+    <button
+      onClick={() => onDiscuss(label, sectionKey, data)}
+      className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors ml-auto"
+    >
+      <MessageSquare className="h-3.5 w-3.5" />
+      Discuss
+    </button>
+  );
+}
+
+export function MemoPage1({ memo, onDiscuss }: MemoPage1Props) {
   const scorePercentage = memo.verdict?.score || 0;
 
   return (
@@ -112,7 +130,10 @@ export function MemoPage1({ memo }: MemoPage1Props) {
 
         {/* Section 1: The Verdict */}
         <div className="space-y-4">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 1: THE VERDICT</h2>
+          <div className="flex items-center">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 1: THE VERDICT</h2>
+            <DiscussBtn label="The Verdict" sectionKey="verdict" data={memo.verdict} onDiscuss={onDiscuss} />
+          </div>
 
           {/* Score Display - Left Aligned */}
           <div className="mb-2">
@@ -175,7 +196,10 @@ export function MemoPage1({ memo }: MemoPage1Props) {
 
         {/* Section 2: Score Breakdown */}
         <div className="bg-white rounded-lg p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 2: SCORE BREAKDOWN</h2>
+          <div className="flex items-center">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 2: SCORE BREAKDOWN</h2>
+            <DiscussBtn label="Score Breakdown" sectionKey="score_breakdown" data={memo.score_breakdown} onDiscuss={onDiscuss} />
+          </div>
 
           <div className="space-y-3">
             {[
@@ -247,7 +271,10 @@ export function MemoPage1({ memo }: MemoPage1Props) {
         {/* Section 3: Verified Strengths */}
         {memo.verified_strengths && memo.verified_strengths.items && memo.verified_strengths.items.length > 0 && (
           <div className="bg-white rounded-lg p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 3: CONSOLIDATED SUMMARY</h2>
+            <div className="flex items-center">
+              <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 3: CONSOLIDATED SUMMARY</h2>
+              <DiscussBtn label="Consolidated Summary" sectionKey="verified_strengths" data={memo.verified_strengths} onDiscuss={onDiscuss} />
+            </div>
 
             <ul className="space-y-2">
               {memo.verified_strengths.items.map((item, i) => (

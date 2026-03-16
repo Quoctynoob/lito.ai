@@ -1,4 +1,21 @@
-import { CircleCheckBig, CircleX } from 'lucide-react';
+'use client';
+
+import { CircleCheckBig, CircleX, MessageSquare } from 'lucide-react';
+
+type OnDiscuss = (sectionName: string, sectionKey: string, sectionData: any) => void;
+
+function DiscussBtn({ label, sectionKey, data, onDiscuss }: { label: string; sectionKey: string; data: any; onDiscuss?: OnDiscuss }) {
+  if (!onDiscuss) return null;
+  return (
+    <button
+      onClick={() => onDiscuss(label, sectionKey, data)}
+      className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors ml-auto"
+    >
+      <MessageSquare className="h-3.5 w-3.5" />
+      Discuss
+    </button>
+  );
+}
 
 interface CategoryDetail {
   score?: number;
@@ -118,9 +135,10 @@ interface MemoPage2Props {
   memo: MemoData & {
     founders?: string | Array<string | { name: string; role?: string; background?: string }>
   };
+  onDiscuss?: OnDiscuss;
 }
 
-export function MemoPage2({ memo }: MemoPage2Props) {
+export function MemoPage2({ memo, onDiscuss }: MemoPage2Props) {
   // Graceful fallback if categories is missing
   const categories = memo.categories || {};
   const team_equity = categories.team_equity || {};
@@ -133,7 +151,10 @@ export function MemoPage2({ memo }: MemoPage2Props) {
     <div className="space-y-6">
       {/* Section 4: Team Equity */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
-        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 4: TEAM & EQUITY</h2>
+        <div className="flex items-center">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 4: TEAM & EQUITY</h2>
+          <DiscussBtn label="Team & Equity" sectionKey="categories.team_equity" data={team_equity} onDiscuss={onDiscuss} />
+        </div>
 
         {/* Founder-Market Fit */}
         <div>
@@ -256,7 +277,10 @@ export function MemoPage2({ memo }: MemoPage2Props) {
 
       {/* Section 5: Traction Validation */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
-        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 5: TRACTION & VALIDATION</h2>
+        <div className="flex items-center">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 5: TRACTION & VALIDATION</h2>
+          <DiscussBtn label="Traction & Validation" sectionKey="categories.traction_validation" data={traction_validation} onDiscuss={onDiscuss} />
+        </div>
 
         {/* Claimed in Deck */}
         <div>
@@ -352,7 +376,10 @@ export function MemoPage2({ memo }: MemoPage2Props) {
 
       {/* Section 6: Market & Vertical */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
-        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 6: MARKET & VERTICAL</h2>
+        <div className="flex items-center">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 6: MARKET & VERTICAL</h2>
+          <DiscussBtn label="Market & Vertical" sectionKey="categories.market_vertical" data={market_vertical} onDiscuss={onDiscuss} />
+        </div>
 
         {/* Business Model Snapshot */}
         {market_vertical.business_model_snapshot && 
@@ -451,7 +478,10 @@ export function MemoPage2({ memo }: MemoPage2Props) {
 
       {/* Section 7: Capital Efficiency */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
-        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 7: CAPITAL EFFICIENCY</h2>
+        <div className="flex items-center">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 7: CAPITAL EFFICIENCY</h2>
+          <DiscussBtn label="Capital Efficiency" sectionKey="categories.capital_efficiency" data={capital_efficiency} onDiscuss={onDiscuss} />
+        </div>
 
         {/* Funding Plan */}
         {capital_efficiency.funding_plan && 
@@ -535,7 +565,10 @@ export function MemoPage2({ memo }: MemoPage2Props) {
 
       {/* Section 8: Cap Table & Terms */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
-        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 8: CAP TABLE & TERMS</h2>
+        <div className="flex items-center">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 8: CAP TABLE & TERMS</h2>
+          <DiscussBtn label="Cap Table & Terms" sectionKey="categories.cap_table_terms" data={cap_table_terms} onDiscuss={onDiscuss} />
+        </div>
 
         {/* Funding Terms */}
         {cap_table_terms.funding_terms && 

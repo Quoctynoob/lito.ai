@@ -1,3 +1,22 @@
+'use client';
+
+import { MessageSquare } from 'lucide-react';
+
+type OnDiscuss = (sectionName: string, sectionKey: string, sectionData: any) => void;
+
+function DiscussBtn({ label, sectionKey, data, onDiscuss }: { label: string; sectionKey: string; data: any; onDiscuss?: OnDiscuss }) {
+  if (!onDiscuss) return null;
+  return (
+    <button
+      onClick={() => onDiscuss(label, sectionKey, data)}
+      className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors ml-auto"
+    >
+      <MessageSquare className="h-3.5 w-3.5" />
+      Discuss
+    </button>
+  );
+}
+
 interface MemoData {
   unverified_claims?: Array<{
     claim: string;
@@ -40,15 +59,19 @@ interface MemoData {
 
 interface MemoPage3Props {
   memo: MemoData;
+  onDiscuss?: OnDiscuss;
 }
 
-export function MemoPage3({ memo }: MemoPage3Props) {
+export function MemoPage3({ memo, onDiscuss }: MemoPage3Props) {
   return (
     <div className="space-y-6">
       {/* Section 9: Claim Verifications */}
       {memo.claim_verifications && (
         <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 9: CLAIM VERIFICATIONS</h2>
+          <div className="flex items-center">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 9: CLAIM VERIFICATIONS</h2>
+            <DiscussBtn label="Claim Verifications" sectionKey="claim_verifications" data={memo.claim_verifications} onDiscuss={onDiscuss} />
+          </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div className="border border-slate-200 rounded-lg p-4 text-center">
@@ -131,7 +154,10 @@ export function MemoPage3({ memo }: MemoPage3Props) {
       {/* Section 11: Penalties */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 11: PENALTIES</h2>
+          <div className="flex items-center">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 11: PENALTIES</h2>
+            <DiscussBtn label="Penalties" sectionKey="penalties" data={memo.penalties} onDiscuss={onDiscuss} />
+          </div>
           <div className="text-lg font-bold text-black">-{memo.penalties?.total ?? 0}</div>
         </div>
 
@@ -155,7 +181,10 @@ export function MemoPage3({ memo }: MemoPage3Props) {
       {/* Section 12: Next Steps */}
       {memo.next_steps && (
         <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-6">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 12: NEXT STEPS</h2>
+          <div className="flex items-center">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 12: NEXT STEPS</h2>
+            <DiscussBtn label="Next Steps" sectionKey="next_steps" data={memo.next_steps} onDiscuss={onDiscuss} />
+          </div>
 
           {/* What to Request */}
           {memo.next_steps.what_to_request && Object.keys(memo.next_steps.what_to_request).length > 0 && (
@@ -214,7 +243,10 @@ export function MemoPage3({ memo }: MemoPage3Props) {
       {/* Section 13: Recommendation Rationale */}
       {memo.recommendation_rationale && (
         <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 13: FINAL RECOMMENDATION</h2>
+          <div className="flex items-center">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">SECTION 13: FINAL RECOMMENDATION</h2>
+            <DiscussBtn label="Final Recommendation" sectionKey="recommendation_rationale" data={memo.recommendation_rationale} onDiscuss={onDiscuss} />
+          </div>
           <p className="text-sm text-black leading-relaxed">{memo.recommendation_rationale}</p>
         </div>
       )}
