@@ -1,8 +1,5 @@
 'use client';
 
-import { AlertCircle, TrendingUp, TrendingDown, Info } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-
 interface Alert {
   id: string;
   title: string;
@@ -57,20 +54,6 @@ const DUMMY_ALERTS: Alert[] = [
   },
 ];
 
-function getAlertIcon(type: Alert['type']) {
-  switch (type) {
-    case 'success':
-      return <TrendingUp className="h-4 w-4 text-green-600" />;
-    case 'warning':
-      return <AlertCircle className="h-4 w-4 text-amber-600" />;
-    case 'error':
-      return <TrendingDown className="h-4 w-4 text-red-600" />;
-    case 'info':
-    default:
-      return <Info className="h-4 w-4 text-blue-600" />;
-  }
-}
-
 function formatTimeAgo(hours: number): string {
   if (hours < 1) return 'Just now';
   if (hours === 1) return '1 hour ago';
@@ -81,7 +64,7 @@ function formatTimeAgo(hours: number): string {
 
 export function AlertFeed() {
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg border border-slate-200">
+    <div className="flex flex-col h-full bg-white rounded-lg border border-slate-200 shadow-sm">
       {/* Header */}
       <div className="px-4 py-3 border-b border-slate-200">
         <h2 className="text-base font-semibold text-slate-900">Alerts</h2>
@@ -89,27 +72,22 @@ export function AlertFeed() {
 
       {/* Scrollable Alert List */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-3 space-y-2">
+        <div className="divide-y divide-slate-200">
           {DUMMY_ALERTS.map((alert) => (
-            <Card
+            <div
               key={alert.id}
-              className="p-3 hover:bg-slate-50 transition-colors cursor-pointer border-slate-200"
+              className="px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer"
             >
-              <div className="flex items-start gap-2">
-                <div className="shrink-0 mt-0.5">{getAlertIcon(alert.type)}</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-slate-900 mb-1 line-clamp-1">
-                    {alert.title}
-                  </h3>
-                  <p className="text-xs text-slate-600 mb-2 line-clamp-2">
-                    {alert.description}
-                  </p>
-                  <p className="text-[10px] text-slate-400">
-                    {formatTimeAgo(alert.hoursAgo)}
-                  </p>
-                </div>
-              </div>
-            </Card>
+              <h3 className="text-xs font-medium text-slate-900 mb-1">
+                {alert.title}
+              </h3>
+              <p className="text-[11px] text-slate-600 mb-2 line-clamp-2">
+                {alert.description}
+              </p>
+              <p className="text-[9px] text-slate-400">
+                {formatTimeAgo(alert.hoursAgo)}
+              </p>
+            </div>
           ))}
         </div>
       </div>

@@ -97,7 +97,7 @@ export function BellCurveChart() {
       </div>
 
       {/* Chart */}
-      <div className="flex-1">
+      <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}

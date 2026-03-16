@@ -6,6 +6,8 @@ import { PaginationControls } from '@/components/sessions/pagination-controls';
 import { PipelineBar } from '@/components/dashboard/pipeline-bar';
 import { AlertFeed } from '@/components/dashboard/alert-feed';
 import { BellCurveChart } from '@/components/dashboard/bell-curve-chart';
+import { KeyMetrics } from '@/components/dashboard/key-metrics';
+import { RecentSessions } from '@/components/dashboard/recent-sessions';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -50,36 +52,15 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
 
         {/* Middle area */}
-        <div className="-mt-16 flex flex-1 flex-col gap-4">
-          {/* Metric 1 / 2 / 3 */}
-          <div className="mt-auto flex gap-3">
-            <div className="flex h-32 flex-1 items-center justify-center rounded-lg bg-slate-200">
-              <span className="text-sm font-medium text-slate-500">Metric 1</span>
-            </div>
-            <div className="flex h-32 flex-1 items-center justify-center rounded-lg bg-slate-200">
-              <span className="text-sm font-medium text-slate-500">Metric 2</span>
-            </div>
-            <div className="flex h-32 flex-1 items-center justify-center rounded-lg bg-slate-200">
-              <span className="text-sm font-medium text-slate-500">Metric 3</span>
-            </div>
+        <div className="-mt-16 flex flex-1 flex-col gap-4 self-end" style={{ height: '464px' }}>
+          {/* Key Metrics */}
+          <div>
+            <KeyMetrics sessions={allSessions} />
           </div>
 
-          {/* Summary Bar */}
-          <div className="flex h-32 w-full items-center justify-center rounded-lg bg-slate-200">
-            <span className="text-sm font-medium text-slate-500">Summary Bar</span>
-          </div>
-
-          {/* Tag 1 / 2 / 3 */}
-          <div className="flex gap-3">
-            <div className="flex h-44 flex-1 items-center justify-center rounded-lg bg-slate-200">
-              <span className="text-sm font-medium text-slate-500">Tag 1</span>
-            </div>
-            <div className="flex h-44 flex-1 items-center justify-center rounded-lg bg-slate-200">
-              <span className="text-sm font-medium text-slate-500">Tag 2</span>
-            </div>
-            <div className="flex h-44 flex-1 items-center justify-center rounded-lg bg-slate-200">
-              <span className="text-sm font-medium text-slate-500">Tag 3</span>
-            </div>
+          {/* Recent Sessions */}
+          <div className="flex-1 min-h-0">
+            <RecentSessions sessions={allSessions} />
           </div>
         </div>
 
